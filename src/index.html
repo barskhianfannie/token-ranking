@@ -3,197 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Token Trend Analyzer</title>
-    <!-- Link to external CSS file -->
+    <title>🚀 Token Ranking</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 Token Trend Analyzer</h1>
-            <p>Discover trending, popular, and new tokens with customizable algorithms</p>
+            <h1>🚀 Token Ranking</h1>
         </div>
 
-        <div class="controls">
-            <div class="control-section">
-                <h3>🎛️ Algorithm Configuration</h3>
-                <div class="algorithm-controls">
-                    <div class="algorithm-group">
-                        <h4>📈 Trending Algorithm</h4>
-                        <div class="weight-control">
-                            <label>Price Change 24h:</label>
-                            <input type="range" id="trending-change24" min="0" max="100" value="20">
-                            <span class="weight-value">20</span>
-                        </div>
-                        <div class="weight-control">
-                            <label>Volume Change 24h:</label>
-                            <input type="range" id="trending-volumeChange24" min="0" max="100" value="15">
-                            <span class="weight-value">15</span>
-                        </div>
-                        <div class="weight-control">
-                            <label>Unique Transactions:</label>
-                            <input type="range" id="trending-uniqueTransactions24" min="0" max="100" value="15">
-                            <span class="weight-value">15</span>
-                        </div>
-                        <div class="weight-control">
-                            <label>Unique Sells:</label>
-                            <input type="range" id="trending-uniqueSells24" min="0" max="100" value="10">
-                            <span class="weight-value">10</span>
-                        </div>
-                        <div class="weight-control">
-                            <label>Unique Buys:</label>
-                            <input type="range" id="trending-uniqueBuys24" min="0" max="100" value="10">
-                            <span class="weight-value">10</span>
-                        </div>
-                        <div class="weight-control">
-                            <label>Transaction Count:</label>
-                            <input type="range" id="trending-txnCount24" min="0" max="100" value="10">
-                            <span class="weight-value">10</span>
-                        </div>
-                        <div class="weight-control">
-                            <label>Sell Volume:</label>
-                            <input type="range" id="trending-sellVolume24" min="0" max="100" value="5">
-                            <span class="weight-value">5</span>
-                        </div>
-                        <div class="weight-control">
-                            <label>Sell Count:</label>
-                            <input type="range" id="trending-sellCount24" min="0" max="100" value="5">
-                            <span class="weight-value">5</span>
-                        </div>
-                        <div class="weight-control">
-                            <label>Buy Volume:</label>
-                            <input type="range" id="trending-buyVolume24" min="0" max="100" value="5">
-                            <span class="weight-value">5</span>
-                        </div>
-                        <div class="weight-control">
-                            <label>Buy Count:</label>
-                            <input type="range" id="trending-buyCount24" min="0" max="100" value="5">
-                            <span class="weight-value">5</span>
-                        </div>
-                    </div>
+        <div class="main-controls">
+            <div class="presets-section">
+                <h3>📊 Quick Presets</h3>
+                <div class="preset-grid">
+                    <button class="preset-card trending" onclick="applyPreset('trending')">
+                        <div class="preset-icon">📈</div>
+                        <div class="preset-title">Trending</div>
+                        <div class="preset-desc">Price momentum + volume spikes</div>
+                    </button>
+                    <button class="preset-card popular" onclick="applyPreset('popular')">
+                        <div class="preset-icon">🔥</div>
+                        <div class="preset-title">Popular</div>
+                        <div class="preset-desc">High volume + market cap</div>
+                    </button>
+                    <button class="preset-card new" onclick="applyPreset('new')">
+                        <div class="preset-icon">✨</div>
+                        <div class="preset-title">New Tokens</div>
+                        <div class="preset-desc">Recently created + early volume</div>
+                    </button>
+                </div>
+            </div>
 
-                    <div class="algorithm-group">
-                        <h4>🔥 Popular Algorithm</h4>
-                        <div class="weight-control">
-                            <label>Volume 24h:</label>
-                            <input type="range" id="popular-volume24" min="0" max="100" value="35">
-                            <span class="weight-value">35</span>
+            <div class="ranking-builder">
+                <h3>🎯 Custom Ranking Builder (24h time frame)</h3>
+                
+                <div class="ranking-list" id="ranking-list">
+                    <div class="ranking-item">
+                        <div class="ranking-number">1</div>
+                        <div class="ranking-controls">
+                            <select class="attribute-select" data-index="0">
+                                <option value="">Select attribute...</option>
+                                <option value="change24">💹 Price Change 24h</option>
+                                <option value="volume24">📊 Volume 24h</option>
+                                <option value="volumeChange24">📈 Volume Change 24h</option>
+                                <option value="marketCap">🏢 Market Cap</option>
+                                <option value="liquidity">💧 Liquidity</option>
+                                <option value="txnCount24">🔄 Transactions 24h</option>
+                                <option value="uniqueTransactions24">👥 Unique Transactions 24h</option>
+                                <option value="uniqueBuys24">🛒 Unique Buys 24h</option>
+                                <option value="uniqueSells24">💸 Unique Sells 24h</option>
+                                <option value="buyVolume24">💚 Buy Volume 24h</option>
+                                <option value="sellVolume24">❤️ Sell Volume 24h</option>
+                                <option value="buyCount24">📥 Buy Count 24h</option>
+                                <option value="sellCount24">📤 Sell Count 24h</option>
+                                <option value="holders">👤 Holders</option>
+                                <option value="createdAt">📅 Creation Date</option>
+                                <option value="priceUSD">💵 Current Price</option>
+                                <option value="age">⏰ Token Age</option>
+                                <option value="high24">⬆️ 24h High</option>
+                                <option value="low24">⬇️ 24h Low</option>
+                            </select>
+                            <div class="direction-toggle" data-index="0">
+                                <button class="direction-btn active" data-direction="DESC">
+                                    <span class="direction-icon">⬇️</span>
+                                    <span class="direction-label">High to Low</span>
+                                </button>
+                                <button class="direction-btn" data-direction="ASC">
+                                    <span class="direction-icon">⬆️</span>
+                                    <span class="direction-label">Low to High</span>
+                                </button>
+                            </div>
                         </div>
-                        <div class="weight-control">
-                            <label>Market Cap:</label>
-                            <input type="range" id="popular-marketCap" min="0" max="100" value="25">
-                            <span class="weight-value">25</span>
-                        </div>
-                        <div class="weight-control">
-                            <label>Liquidity:</label>
-                            <input type="range" id="popular-liquidity" min="0" max="100" value="25">
-                            <span class="weight-value">25</span>
-                        </div>
-                        <div class="weight-control">
-                            <label>Holders:</label>
-                            <input type="range" id="popular-holders" min="0" max="100" value="15">
-                            <span class="weight-value">15</span>
-                        </div>
+                        <button class="remove-ranking" onclick="removeRanking(0)" style="display: none;">❌</button>
                     </div>
+                </div>
+                
+                <div class="ranking-actions">
+                    <button class="add-ranking-btn" onclick="addRanking()">➕ Add Another Ranking</button>
+                    <button class="apply-ranking-btn" onclick="applyCustomRanking()">🎯 Apply Custom Ranking</button>
+                    <button class="clear-ranking-btn" onclick="clearAllRankings()">🗑️ Clear All</button>
+                </div>
+            </div>
 
-                    <div class="algorithm-group">
-                        <h4>✨ New Tokens Algorithm</h4>
-                        <div class="weight-control">
-                            <label>Creation Time:</label>
-                            <input type="range" id="new-createdAt" min="0" max="100" value="50">
-                            <span class="weight-value">50</span>
+            <div class="filters-section">
+                <h3>🔍 Advanced Filters</h3>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-tab="basic">Basic Filters</button>
+                </div>
+
+                <!-- Basic Filters Tab -->
+                <div class="filter-content active" data-content="basic">
+                    <div class="filters-grid">
+                        <div class="filter-group">
+                            <label>💧 Min Liquidity</label>
+                            <input type="number" id="min-liquidity" placeholder="10,000">
+                            <span class="filter-hint">Minimum liquidity in USD</span>
                         </div>
-                        <div class="weight-control">
-                            <label>Early Volume:</label>
-                            <input type="range" id="new-volume24" min="0" max="100" value="30">
-                            <span class="weight-value">30</span>
+                        <div class="filter-group">
+                            <label>📊 Min Volume 24h</label>
+                            <input type="number" id="min-volume24" placeholder="1,000">
+                            <span class="filter-hint">Minimum daily trading volume</span>
                         </div>
-                        <div class="weight-control">
-                            <label>Initial Liquidity:</label>
-                            <input type="range" id="new-liquidity" min="0" max="100" value="20">
-                            <span class="weight-value">20</span>
+                        <div class="filter-group">
+                            <label>🔄 Min Transactions 24h</label>
+                            <input type="number" id="min-txnCount24" placeholder="10">
+                            <span class="filter-hint">Minimum transaction count</span>
+                        </div>
+                        <div class="filter-group">
+                            <label>🏢 Min Market Cap</label>
+                            <input type="number" id="min-marketCap" placeholder="100,000">
+                            <span class="filter-hint">Minimum market capitalization</span>
+                        </div>
+                        <div class="filter-group">
+                            <label>👤 Min Holders</label>
+                            <input type="number" id="min-holders" placeholder="50">
+                            <span class="filter-hint">Minimum token holders</span>
+                        </div>
+                        <div class="filter-group">
+                            <label>🌐 Network</label>
+                            <select id="network-filter">
+                                <option value="all" selected>🌍 All Networks</option>
+                                <option value="1" >🔷 Ethereum</option>
+                                <option value="56">🟡 BSC</option>
+                                <option value="137">🟣 Polygon</option>
+                                <option value="43114">🔴 Avalanche</option>
+                                <option value="1399811149">🔵 Solana</option>
+                                <option value="42161">🔶 Arbitrum</option>
+                                <option value="10">🔴 Optimism</option>
+                                <option value="8453">🔵 Base</option>
+                                <option value="130">🔴 Unichain</option>
+                                <option value="534352">🟣 Scroll</option>
+                                <option value="81457">🔶 Blast</option>
+                                <option value="59144">🔷 Linea</option>
+                                <option value="5000">🔴 Mantle</option>
+                                <option value="34443">🔶 Mode</option>
+                            </select>
+                            <span class="filter-hint">Blockchain network</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="ranking-controls">
-                    <h4>📊 Quick Ranking Options</h4>
-                    <div class="ranking-options">
-                        <div class="ranking-option">
-                            <label>Primary Sort:</label>
-                            <select id="primary-sort">
-                                <option value="score">Algorithm Score</option>
-                                <option value="change24">Price Change 24h</option>
-                                <option value="volume24">Volume 24h</option>
-                                <option value="marketCap">Market Cap</option>
-                                <option value="liquidity">Liquidity</option>
-                                <option value="txnCount24">Transactions 24h</option>
-                                <option value="holders">Holders</option>
-                                <option value="createdAt">Creation Date</option>
-                            </select>
-                        </div>
-                        <div class="ranking-option">
-                            <label>Order:</label>
-                            <select id="sort-order">
-                                <option value="desc">Descending (High to Low)</option>
-                                <option value="asc">Ascending (Low to High)</option>
-                            </select>
-                        </div>
-                        <div class="ranking-option">
-                            <label>Results per page:</label>
-                            <select id="results-per-page">
-                                <option value="25">25</option>
-                                <option value="50" selected>50</option>
-                                <option value="100">100</option>
-                            </select>
-                        </div>
+                <div class="filter-actions">
+                    <div class="filter-actions-left">
+                        <span class="results-per-page-label">📄 Results per page:</span>
+                        <select id="results-per-page">
+                            <option value="25">25</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                            <option value="200">200</option>
+                        </select>
+                    </div>
+                    <div class="filter-actions-right">
+                        <button class="clear-filters-btn" onclick="clearAllFilters()">🗑️ Clear All Filters</button>
+                        <button class="refresh-btn" onclick="fetchTokens()">🔄 Apply Filters</button>
+                        <span class="filter-hint api-status" id="api-status">Ready to fetch data</span>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <button class="refresh-btn" onclick="fetchTokens()">🔄 Refresh Data</button>
-                <div class="api-status" id="api-status">Ready to fetch data...</div>
+        <div class="results-section">
+            <div class="results-header">
+                <h3>📋 Results</h3>
+                <div class="pagination-controls">
+                    <button onclick="goToFirstPage()" id="first-btn">⏮️ First</button>
+                    <button onclick="changePage(-1)" id="prev-btn">⬅️ Prev</button>
+                    <span class="page-info" id="page-info">Page 1</span>
+                    <button onclick="changePage(1)" id="next-btn">➡️ Next</button>
+                    <button onclick="goToLastPage()" id="last-btn">⏭️ Last</button>
+                </div>
             </div>
-        </div>
 
-        <div class="tabs">
-            <button class="tab active" onclick="showTab('trending')">📈 Trending</button>
-            <button class="tab" onclick="showTab('popular')">🔥 Popular</button>
-            <button class="tab" onclick="showTab('new')">✨ New</button>
-        </div>
+            <div class="table-container">
+                <table class="tokens-table">
+                    <thead>
+                        <tr>
+                            <th>🏆 Rank</th>
+                            <th>🪙 Token</th>
+                            <th>💵 Price</th>
+                            <th>📈 24h Change</th>
+                            <th>📊 Volume 24h</th>
+                            <th>🏢 Market Cap</th>
+                            <th>💧 Liquidity</th>
+                            <th>🔄 Txns</th>
+                            <th>🛒 Buyers</th>
+                            <th>💸 Sellers</th>
+                            <th>⏰ Age</th>
+                            <th>🔗 Link</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tokens-table-body">
+                        <tr><td colspan="12" class="loading">🔄 Loading tokens...</td></tr>
+                    </tbody>
+                </table>
+            </div>
 
-        <div class="table-container">
-            <table class="tokens-table">
-                <thead>
-                    <tr>
-                        <th class="sortable" data-sort="rank">#</th>
-                        <th class="sortable" data-sort="token">Token</th>
-                        <th class="sortable" data-sort="priceUSD">Price</th>
-                        <th class="sortable" data-sort="change24">24h Change</th>
-                        <th class="sortable" data-sort="volume24">Volume 24h</th>
-                        <th class="sortable" data-sort="marketCap">Market Cap</th>
-                        <th class="sortable" data-sort="liquidity">Liquidity</th>
-                        <th class="sortable" data-sort="txnCount24">Txns 24h</th>
-                        <th class="sortable" data-sort="holders">Holders</th>
-                        <th class="sortable" data-sort="createdAt">Age</th>
-                        <th class="sortable" data-sort="score">Score</th>
-                    </tr>
-                </thead>
-                <tbody id="tokens-table-body">
-                    <tr><td colspan="11" class="loading">Loading tokens...</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="pagination" id="pagination" style="display: none;">
-            <button onclick="changePage(-1)" id="prev-btn" disabled>← Previous</button>
-            <span id="page-info">Page 1 of 1</span>
-            <button onclick="changePage(1)" id="next-btn" disabled>Next →</button>
+            <div class="pagination-footer">
+                <div class="pagination-info" id="pagination-info">Showing 0 of 0 tokens</div>
+                <div class="pagination-controls">
+                    <button onclick="goToFirstPage()">⏮️ First</button>
+                    <button onclick="changePage(-1)" id="prev-btn-footer">⬅️ Previous</button>
+                    <span id="page-display">Page 1</span>
+                    <button onclick="changePage(1)" id="next-btn-footer">Next ➡️</button>
+                    <button onclick="goToLastPage()">Last ⏭️</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Link to external JavaScript files -->
     <script src="api.js"></script>
     <script src="app.js"></script>
 </body>
