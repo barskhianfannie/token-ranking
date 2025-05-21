@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "name": "token-ranking",
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/src/$1"
+    },
+    {
+      "src": "/",
+      "dest": "/src/index.html"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "start": "live-server src --port=3000",
+    "dev": "live-server src --port=3000 --open=/index.html --watch=src",
+    "build": "echo 'Build completed' && cp -r src dist",
+    "vercel-build": "npm run build"
+  }
+}

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Trend Analyzer</title>
+    <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Token Trend Analyzer</h1>
+            <p>Discover trending, popular, and new tokens with customizable algorithms</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-section">
+                <h3>🎛️ Algorithm Configuration</h3>
+                <div class="algorithm-controls">
+                    <div class="algorithm-group">
+                        <h4>📈 Trending Algorithm</h4>
+                        <div class="weight-control">
+                            <label>Price Change 24h:</label>
+                            <input type="range" id="trending-change24" min="0" max="100" value="20">
+                            <span class="weight-value">20</span>
+                        </div>
+                        <div class="weight-control">
+                            <label>Volume Change 24h:</label>
+                            <input type="range" id="trending-volumeChange24" min="0" max="100" value="15">
+                            <span class="weight-value">15</span>
+                        </div>
+                        <div class="weight-control">
+                            <label>Unique Transactions:</label>
+                            <input type="range" id="trending-uniqueTransactions24" min="0" max="100" value="15">
+                            <span class="weight-value">15</span>
+                        </div>
+                        <div class="weight-control">
+                            <label>Unique Sells:</label>
+                            <input type="range" id="trending-uniqueSells24" min="0" max="100" value="10">
+                            <span class="weight-value">10</span>
+                        </div>
+                        <div class="weight-control">
+                            <label>Unique Buys:</label>
+                            <input type="range" id="trending-uniqueBuys24" min="0" max="100" value="10">
+                            <span class="weight-value">10</span>
+                        </div>
+                        <div class="weight-control">
+                            <label>Transaction Count:</label>
+                            <input type="range" id="trending-txnCount24" min="0" max="100" value="10">
+                            <span class="weight-value">10</span>
+                        </div>
+                        <div class="weight-control">
+                            <label>Sell Volume:</label>
+                            <input type="range" id="trending-sellVolume24" min="0" max="100" value="5">
+                            <span class="weight-value">5</span>
+                        </div>
+                        <div class="weight-control">
+                            <label>Sell Count:</label>
+                            <input type="range" id="trending-sellCount24" min="0" max="100" value="5">
+                            <span class="weight-value">5</span>
+                        </div>
+                        <div class="weight-control">
+                            <label>Buy Volume:</label>
+                            <input type="range" id="trending-buyVolume24" min="0" max="100" value="5">
+                            <span class="weight-value">5</span>
+                        </div>
+                        <div class="weight-control">
+                            <label>Buy Count:</label>
+                            <input type="range" id="trending-buyCount24" min="0" max="100" value="5">
+                            <span class="weight-value">5</span>
+                        </div>
+                    </div>
+
+                    <div class="algorithm-group">
+                        <h4>🔥 Popular Algorithm</h4>
+                        <div class="weight-control">
+                            <label>Volume 24h:</label>
+                            <input type="range" id="popular-volume24" min="0" max="100" value="35">
+                            <span class="weight-value">35</span>
+                        </div>
+                        <div class="weight-control">
+                            <label>Market Cap:</label>
+                            <input type="range" id="popular-marketCap" min="0" max="100" value="25">
+                            <span class="weight-value">25</span>
+                        </div>
+                        <div class="weight-control">
+                            <label>Liquidity:</label>
+                            <input type="range" id="popular-liquidity" min="0" max="100" value="25">
+                            <span class="weight-value">25</span>
+                        </div>
+                        <div class="weight-control">
+                            <label>Holders:</label>
+                            <input type="range" id="popular-holders" min="0" max="100" value="15">
+                            <span class="weight-value">15</span>
+                        </div>
+                    </div>
+
+                    <div class="algorithm-group">
+                        <h4>✨ New Tokens Algorithm</h4>
+                        <div class="weight-control">
+                            <label>Creation Time:</label>
+                            <input type="range" id="new-createdAt" min="0" max="100" value="50">
+                            <span class="weight-value">50</span>
+                        </div>
+                        <div class="weight-control">
+                            <label>Early Volume:</label>
+                            <input type="range" id="new-volume24" min="0" max="100" value="30">
+                            <span class="weight-value">30</span>
+                        </div>
+                        <div class="weight-control">
+                            <label>Initial Liquidity:</label>
+                            <input type="range" id="new-liquidity" min="0" max="100" value="20">
+                            <span class="weight-value">20</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ranking-controls">
+                    <h4>📊 Quick Ranking Options</h4>
+                    <div class="ranking-options">
+                        <div class="ranking-option">
+                            <label>Primary Sort:</label>
+                            <select id="primary-sort">
+                                <option value="score">Algorithm Score</option>
+                                <option value="change24">Price Change 24h</option>
+                                <option value="volume24">Volume 24h</option>
+                                <option value="marketCap">Market Cap</option>
+                                <option value="liquidity">Liquidity</option>
+                                <option value="txnCount24">Transactions 24h</option>
+                                <option value="holders">Holders</option>
+                                <option value="createdAt">Creation Date</option>
+                            </select>
+                        </div>
+                        <div class="ranking-option">
+                            <label>Order:</label>
+                            <select id="sort-order">
+                                <option value="desc">Descending (High to Low)</option>
+                                <option value="asc">Ascending (Low to High)</option>
+                            </select>
+                        </div>
+                        <div class="ranking-option">
+                            <label>Results per page:</label>
+                            <select id="results-per-page">
+                                <option value="25">25</option>
+                                <option value="50" selected>50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="refresh-btn" onclick="fetchTokens()">🔄 Refresh Data</button>
+                <div class="api-status" id="api-status">Ready to fetch data...</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('trending')">📈 Trending</button>
+            <button class="tab" onclick="showTab('popular')">🔥 Popular</button>
+            <button class="tab" onclick="showTab('new')">✨ New</button>
+        </div>
+
+        <div class="table-container">
+            <table class="tokens-table">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-sort="rank">#</th>
+                        <th class="sortable" data-sort="token">Token</th>
+                        <th class="sortable" data-sort="priceUSD">Price</th>
+                        <th class="sortable" data-sort="change24">24h Change</th>
+                        <th class="sortable" data-sort="volume24">Volume 24h</th>
+                        <th class="sortable" data-sort="marketCap">Market Cap</th>
+                        <th class="sortable" data-sort="liquidity">Liquidity</th>
+                        <th class="sortable" data-sort="txnCount24">Txns 24h</th>
+                        <th class="sortable" data-sort="holders">Holders</th>
+                        <th class="sortable" data-sort="createdAt">Age</th>
+                        <th class="sortable" data-sort="score">Score</th>
+                    </tr>
+                </thead>
+                <tbody id="tokens-table-body">
+                    <tr><td colspan="11" class="loading">Loading tokens...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination" id="pagination" style="display: none;">
+            <button onclick="changePage(-1)" id="prev-btn" disabled>← Previous</button>
+            <span id="page-info">Page 1 of 1</span>
+            <button onclick="changePage(1)" id="next-btn" disabled>Next →</button>
+        </div>
+    </div>
+
+    <!-- Link to external JavaScript files -->
+    <script src="api.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
