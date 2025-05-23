@@ -1,4 +1,132 @@
-let tokensData = [];
+function buildFilters() {
+    const filters = {};
+    
+    // Helper function to safely add number filter
+    function addNumberFilter(filterId, filterKey, isMax = false) {
+        const element = document.getElementById(filterId);
+        if (element && element.value && element.value.trim() !== '') {
+            const value = parseFloat(element.value);
+            if (!isNaN(value) && value > 0) {
+                if (!filters[filterKey]) filters[filterKey] = {};
+                filters[filterKey][isMax ? 'lt' : 'gt'] = value;
+            }
+        }
+    }
+    
+    // Helper function to safely add string filter
+    function addStringFilter(filterId, filterKey) {
+        const element = document.getElementById(filterId);
+        if (element && element.value && element.value.trim() !== '') {
+            filters[filterKey] = element.value.trim();
+        }
+    }
+    
+    // Helper function to safely add array filter
+    function addArrayFilter(filterId, filterKey) {
+        const element = document.getElementById(filterId);
+        if (element && element.value && element.value.trim() !== '') {
+            const values = element.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            if (values.length > 0) {
+                filters[filterKey] = values;
+            }
+        }
+    }
+    
+    // Helper function to safely add boolean filter
+    function addBooleanFilter(filterId, filterKey) {
+        const element = document.getElementById(filterId);
+        if (element && element.checked) {
+            filters[filterKey] = true;
+        }
+    }
+    
+    // Helper function to safely add date filter
+    function addDateFilter(filterId, filterKey, isMax = false) {
+        const element = document.getElementById(filterId);
+        if (element && element.value && element.value.trim() !== '') {
+            const timestamp = Math.floor(new Date(element.value).getTime() / 1000);
+            if (!isNaN(timestamp)) {
+                if (!filters[filterKey]) filters[filterKey] = {};
+                filters[filterKey][isMax ? 'lt' : 'gt'] = timestamp;
+            }
+        }
+    }
+
+    try {
+        // Basic filters
+        addNumberFilter('min-liquidity', 'liquidity');
+        addNumberFilter('min-volume24', 'volume24');
+        addNumberFilter('min-txnCount24', 'txnCount24');
+        addNumberFilter('min-marketCap', 'marketCap');
+        addNumberFilter('min-holders', 'holders');
+
+        // Volume & Trading filters (24h only)
+        addNumberFilter('min-volumeChange24', 'volumeChange24');
+        addNumberFilter('min-buyVolume24', 'buyVolume24');
+        addNumberFilter('max-sellVolume24', 'sellVolume24', true);
+
+        // Price & Changes filters
+        addNumberFilter('min-priceUSD', 'priceUSD');
+        addNumberFilter('max-priceUSD', 'priceUSD', true);
+        addNumberFilter('min-change24', 'change24');
+        addNumberFilter('max-change24', 'change24', true);
+
+        // Transaction filters (24h only)
+        addNumberFilter('min-uniqueTransactions24', 'uniqueTransactions24');
+        addNumberFilter('min-uniqueBuys24', 'uniqueBuys24');
+        addNumberFilter('max-uniqueSells24', 'uniqueSells24', true);
+        addNumberFilter('min-buyCount24', 'buyCount24');
+        addNumberFilter('max-sellCount24', 'sellCount24', true);
+
+        // Time and age filters
+        addNumberFilter('min-age', 'age');
+        addNumberFilter('max-age', 'age', true);
+        addDateFilter('min-createdAt', 'createdAt');
+        addDateFilter('max-createdAt', 'createdAt', true);
+
+        // Advanced filters
+        addNumberFilter('min-walletAgeAvg', 'walletAgeAvg');
+        addNumberFilter('max-swapPct1dOldWallet', 'swapPct1dOldWallet', true);
+        addNumberFilter('max-swapPct7dOldWallet', 'swapPct7dOldWallet', true);
+
+        // Network filter
+        const networkElement = document.getElementById('network-filter');
+        if (networkElement) {
+            if (networkElement.value === 'all') {
+                const supportedNetworks = [
+                    1,      // Ethereum
+                    56,     // BSC  
+                    137,    // Polygon
+                    43114,  // Avalanche
+                    1399811149, // Solana
+                    42161,  // Arbitrum
+                    10,     // Optimism
+                    8453,   // Base
+                    130,    // Unichain
+                    534352, // Scroll
+                    81457,  // Blast
+                    59144,  // Linea
+                    5000,   // Mantle
+                    34443   // Mode
+                ];
+                filters.network = supportedNetworks;
+            } else {
+                // When a specific network is selected
+                const networkId = parseInt(networkElement.value);
+                if (!isNaN(networkId)) {
+                    filters.network = [networkId];
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error building filters:', error);
+        updateApiStatus('Error building filters: ' + error.message, 'error');
+    }
+    
+    console.log('📊 Built filters:', filters);
+    return filters;
+}let tokensData = [];
 let currentPage = 1;
 let totalTokens = 0;
 let isLoading = false;
@@ -131,117 +259,10 @@ function debounce(func, wait) {
     };
 }
 
-function addRanking() {
+function clearRanking() {
     const rankingList = document.getElementById('ranking-list');
     if (!rankingList) return;
     
-    const currentItems = rankingList.querySelectorAll('.ranking-item');
-    const newIndex = currentItems.length;
-    
-    if (newIndex >= 5) {
-        updateApiStatus('Maximum 5 rankings allowed', 'error');
-        return;
-    }
-    
-    const newItem = document.createElement('div');
-    newItem.className = 'ranking-item';
-    newItem.innerHTML = `
-        <div class="ranking-number">${newIndex + 1}</div>
-        <div class="ranking-controls">
-            <select class="attribute-select" data-index="${newIndex}">
-                <option value="">Select attribute...</option>
-                <option value="change24">💹 Price Change 24h</option>
-                <option value="volume24">📊 Volume 24h</option>
-                <option value="volumeChange24">📈 Volume Change 24h</option>
-                <option value="marketCap">🏢 Market Cap</option>
-                <option value="liquidity">💧 Liquidity</option>
-                <option value="txnCount24">🔄 Transactions 24h</option>
-                <option value="uniqueTransactions24">👥 Unique Transactions 24h</option>
-                <option value="uniqueBuys24">🛒 Unique Buys 24h</option>
-                <option value="uniqueSells24">💸 Unique Sells 24h</option>
-                <option value="buyVolume24">💚 Buy Volume 24h</option>
-                <option value="sellVolume24">❤️ Sell Volume 24h</option>
-                <option value="buyCount24">📥 Buy Count 24h</option>
-                <option value="sellCount24">📤 Sell Count 24h</option>
-                <option value="holders">👤 Holders</option>
-                <option value="createdAt">📅 Creation Date</option>
-                <option value="priceUSD">💵 Current Price</option>
-                <option value="age">⏰ Token Age</option>
-                <option value="high24">⬆️ 24h High</option>
-                <option value="low24">⬇️ 24h Low</option>
-            </select>
-            <div class="direction-toggle" data-index="${newIndex}">
-                <button class="direction-btn active" data-direction="DESC">
-                    <span class="direction-icon">⬇️</span>
-                    <span class="direction-label">High to Low</span>
-                </button>
-                <button class="direction-btn" data-direction="ASC">
-                    <span class="direction-icon">⬆️</span>
-                    <span class="direction-label">Low to High</span>
-                </button>
-            </div>
-        </div>
-        <button class="remove-ranking" onclick="removeRanking(${newIndex})">❌</button>
-    `;
-    
-    rankingList.appendChild(newItem);
-    updateRemoveButtons();
-}
-
-function removeRanking(index) {
-    const rankingList = document.getElementById('ranking-list');
-    if (!rankingList) return;
-    
-    const items = rankingList.querySelectorAll('.ranking-item');
-    
-    if (items.length <= 1) {
-        updateApiStatus('Must have at least one ranking', 'error');
-        return;
-    }
-    
-    if (items[index]) {
-        items[index].remove();
-    }
-    
-    // Renumber remaining items
-    const remainingItems = rankingList.querySelectorAll('.ranking-item');
-    remainingItems.forEach((item, newIndex) => {
-        const numberDiv = item.querySelector('.ranking-number');
-        const select = item.querySelector('.attribute-select');
-        const toggle = item.querySelector('.direction-toggle');
-        const removeBtn = item.querySelector('.remove-ranking');
-        
-        if (numberDiv) numberDiv.textContent = newIndex + 1;
-        if (select) select.dataset.index = newIndex;
-        if (toggle) toggle.dataset.index = newIndex;
-        if (removeBtn) removeBtn.setAttribute('onclick', `removeRanking(${newIndex})`);
-    });
-    
-    updateRemoveButtons();
-    updateRankingFromUI();
-}
-
-function updateRemoveButtons() {
-    const items = document.querySelectorAll('.ranking-item');
-    items.forEach((item) => {
-        const removeBtn = item.querySelector('.remove-ranking');
-        if (removeBtn) {
-            removeBtn.style.display = items.length > 1 ? 'block' : 'none';
-        }
-    });
-}
-
-function clearAllRankings() {
-    const rankingList = document.getElementById('ranking-list');
-    if (!rankingList) return;
-    
-    // Keep only the first ranking item and reset it
-    const items = rankingList.querySelectorAll('.ranking-item');
-    for (let i = items.length - 1; i > 0; i--) {
-        items[i].remove();
-    }
-    
-    // Reset the first item
     const firstItem = rankingList.querySelector('.ranking-item');
     if (firstItem) {
         const select = firstItem.querySelector('.attribute-select');
@@ -253,28 +274,27 @@ function clearAllRankings() {
         if (ascBtn) ascBtn.classList.remove('active');
     }
     
-    updateRemoveButtons();
     rankings = [];
-    updateApiStatus('Rankings cleared', 'info');
+    updateApiStatus('Ranking cleared', 'info');
 }
 
 function updateRankingFromUI() {
     rankings = [];
-    const items = document.querySelectorAll('.ranking-item');
+    const item = document.querySelector('.ranking-item');
     
-    items.forEach(item => {
+    if (item) {
         const select = item.querySelector('.attribute-select');
         const activeDirection = item.querySelector('.direction-btn.active');
         
         if (select && activeDirection && select.value) {
-            rankings.push({
+            rankings = [{
                 attribute: select.value,
                 direction: activeDirection.dataset.direction
-            });
+            }];
         }
-    });
+    }
     
-    console.log('📊 Updated rankings:', rankings);
+    console.log('📊 Updated ranking:', rankings);
 }
 
 function applyPreset(presetName) {
@@ -300,27 +320,25 @@ function applyPreset(presetName) {
         return;
     }
     
-    // Clear existing rankings
-    clearAllRankings();
+    // Clear existing ranking
+    clearRanking();
     
-    // Apply preset rankings to UI
-    config.rankings.forEach((ranking, index) => {
-        if (index > 0) {
-            addRanking();
-        }
+    // Apply first ranking from preset to the single ranking item
+    if (config.rankings && config.rankings.length > 0) {
+        const firstRanking = config.rankings[0]; // Use only the first ranking
+        const item = document.querySelector('.ranking-item');
         
-        const item = document.querySelectorAll('.ranking-item')[index];
         if (item) {
             const select = item.querySelector('.attribute-select');
             const directionBtns = item.querySelectorAll('.direction-btn');
             
-            if (select) select.value = ranking.attribute;
+            if (select) select.value = firstRanking.attribute;
             
             directionBtns.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.direction === ranking.direction);
+                btn.classList.toggle('active', btn.dataset.direction === firstRanking.direction);
             });
         }
-    });
+    }
     
     // Apply preset filters safely
     const liquidityInput = document.getElementById('min-liquidity');
@@ -349,7 +367,7 @@ function applyCustomRanking() {
     updateRankingFromUI();
     
     if (rankings.length === 0) {
-        updateApiStatus('Please select at least one ranking attribute', 'error');
+        updateApiStatus('Please select a ranking attribute', 'error');
         return;
     }
     
@@ -423,6 +441,114 @@ function buildFilters() {
         addNumberFilter('min-marketCap', 'marketCap');
         addNumberFilter('min-holders', 'holders');
 
+        // Volume filters - 5 minutes
+        addNumberFilter('min-volume5m', 'volume5m');
+        addNumberFilter('min-volumeChange5m', 'volumeChange5m');
+        addNumberFilter('min-buyVolume5m', 'buyVolume5m');
+        addNumberFilter('max-sellVolume5m', 'sellVolume5m', true);
+
+        // Volume filters - 1 hour
+        addNumberFilter('min-volume1', 'volume1');
+        addNumberFilter('min-volumeChange1', 'volumeChange1');
+        addNumberFilter('min-buyVolume1', 'buyVolume1');
+        addNumberFilter('max-sellVolume1', 'sellVolume1', true);
+
+        // Volume filters - 4 hours
+        addNumberFilter('min-volume4', 'volume4');
+        addNumberFilter('min-volumeChange4', 'volumeChange4');
+        addNumberFilter('min-buyVolume4', 'buyVolume4');
+        addNumberFilter('max-sellVolume4', 'sellVolume4', true);
+
+        // Volume filters - 12 hours
+        addNumberFilter('min-volume12', 'volume12');
+        addNumberFilter('min-volumeChange12', 'volumeChange12');
+        addNumberFilter('min-buyVolume12', 'buyVolume12');
+        addNumberFilter('max-sellVolume12', 'sellVolume12', true);
+
+        // Volume filters - 24 hours
+        addNumberFilter('min-volumeChange24', 'volumeChange24');
+        addNumberFilter('min-buyVolume24', 'buyVolume24');
+        addNumberFilter('max-sellVolume24', 'sellVolume24', true);
+
+        // Price filters
+        addNumberFilter('min-priceUSD', 'priceUSD');
+        addNumberFilter('max-priceUSD', 'priceUSD', true);
+
+        // Price change filters - 5 minutes
+        addNumberFilter('min-change5m', 'change5m');
+        addNumberFilter('max-change5m', 'change5m', true);
+
+        // Price change filters - 1 hour
+        addNumberFilter('min-change1', 'change1');
+        addNumberFilter('max-change1', 'change1', true);
+
+        // Price change filters - 4 hours
+        addNumberFilter('min-change4', 'change4');
+        addNumberFilter('max-change4', 'change4', true);
+
+        // Price change filters - 12 hours
+        addNumberFilter('min-change12', 'change12');
+        addNumberFilter('max-change12', 'change12', true);
+
+        // Price change filters - 24 hours
+        addNumberFilter('min-change24', 'change24');
+        addNumberFilter('max-change24', 'change24', true);
+
+        // Transaction filters - 5 minutes
+        addNumberFilter('min-txnCount5m', 'txnCount5m');
+        addNumberFilter('min-uniqueTransactions5m', 'uniqueTransactions5m');
+        addNumberFilter('min-uniqueBuys5m', 'uniqueBuys5m');
+        addNumberFilter('max-uniqueSells5m', 'uniqueSells5m', true);
+        addNumberFilter('min-buyCount5m', 'buyCount5m');
+        addNumberFilter('max-sellCount5m', 'sellCount5m', true);
+
+        // Transaction filters - 1 hour
+        addNumberFilter('min-txnCount1', 'txnCount1');
+        addNumberFilter('min-uniqueTransactions1', 'uniqueTransactions1');
+        addNumberFilter('min-uniqueBuys1', 'uniqueBuys1');
+        addNumberFilter('max-uniqueSells1', 'uniqueSells1', true);
+        addNumberFilter('min-buyCount1', 'buyCount1');
+        addNumberFilter('max-sellCount1', 'sellCount1', true);
+
+        // Transaction filters - 4 hours
+        addNumberFilter('min-txnCount4', 'txnCount4');
+        addNumberFilter('min-uniqueTransactions4', 'uniqueTransactions4');
+        addNumberFilter('min-uniqueBuys4', 'uniqueBuys4');
+        addNumberFilter('max-uniqueSells4', 'uniqueSells4', true);
+        addNumberFilter('min-buyCount4', 'buyCount4');
+        addNumberFilter('max-sellCount4', 'sellCount4', true);
+
+        // Transaction filters - 12 hours
+        addNumberFilter('min-txnCount12', 'txnCount12');
+        addNumberFilter('min-uniqueTransactions12', 'uniqueTransactions12');
+        addNumberFilter('min-uniqueBuys12', 'uniqueBuys12');
+        addNumberFilter('max-uniqueSells12', 'uniqueSells12', true);
+        addNumberFilter('min-buyCount12', 'buyCount12');
+        addNumberFilter('max-sellCount12', 'sellCount12', true);
+
+        // Transaction filters - 24 hours
+        addNumberFilter('min-uniqueTransactions24', 'uniqueTransactions24');
+        addNumberFilter('min-uniqueBuys24', 'uniqueBuys24');
+        addNumberFilter('max-uniqueSells24', 'uniqueSells24', true);
+        addNumberFilter('min-buyCount24', 'buyCount24');
+        addNumberFilter('max-sellCount24', 'sellCount24', true);
+
+        // Time and age filters
+        addNumberFilter('min-age', 'age');
+        addNumberFilter('max-age', 'age', true);
+        addDateFilter('min-createdAt', 'createdAt');
+        addDateFilter('max-createdAt', 'createdAt', true);
+
+        // Advanced filters
+        addStringFilter('creatorAddress', 'creatorAddress');
+        addNumberFilter('min-walletAgeAvg', 'walletAgeAvg');
+        addNumberFilter('max-swapPct1dOldWallet', 'swapPct1dOldWallet', true);
+        addNumberFilter('max-swapPct7dOldWallet', 'swapPct7dOldWallet', true);
+        addStringFilter('exchangeId', 'exchangeId');
+        addStringFilter('exchangeAddress', 'exchangeAddress');
+        addStringFilter('launchpadProtocol', 'launchpadProtocol');
+
+        // Network filter
         const networkElement = document.getElementById('network-filter');
         if (networkElement) {
             if (networkElement.value === 'all') {
@@ -554,7 +680,31 @@ function displayTokens() {
     if (!tbody) return;
     
     if (!tokensData || tokensData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="12" class="loading">❌ No tokens found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="22" class="loading">❌ No tokens found</td></tr>';
+        return;
+    }
+    
+    // Filter out tokens with contract addresses as names
+    const filteredTokens = tokensData.filter(token => {
+        const tokenName = token.token?.name || '';
+        const tokenSymbol = token.token?.symbol || '';
+        
+        // Check if name looks like a contract address (long alphanumeric string)
+        const isContractAddressName = /^[A-Za-z0-9]{20,}$/.test(tokenName) || 
+                                     /^0x[A-Fa-f0-9]{40}$/.test(tokenName) ||
+                                     tokenName.length > 50;
+        
+        // Check if symbol looks like a contract address
+        const isContractAddressSymbol = /^[A-Za-z0-9]{20,}$/.test(tokenSymbol) ||
+                                       /^0x[A-Fa-f0-9]{40}$/.test(tokenSymbol) ||
+                                       tokenSymbol.length > 20;
+        
+        // Exclude tokens where name or symbol looks like contract address
+        return !isContractAddressName && !isContractAddressSymbol;
+    });
+    
+    if (filteredTokens.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="22" class="loading">❌ No valid tokens found after filtering</td></tr>';
         return;
     }
     
@@ -562,11 +712,16 @@ function displayTokens() {
     const limit = resultsPerPageElement ? parseInt(resultsPerPageElement.value) : 50;
     const startRank = ((currentPage - 1) * limit) + 1;
     
-    tbody.innerHTML = tokensData.map((token, index) => {
+    tbody.innerHTML = filteredTokens.map((token, index) => {
         const change24 = parseFloat(token.change24) || 0;
         const changeClass = change24 > 0 ? 'change-positive' : change24 < 0 ? 'change-negative' : 'change-neutral';
         const changeSign = change24 > 0 ? '+' : '';
         const rank = startRank + index;
+        
+        // Volume change calculation
+        const volumeChange24 = parseFloat(token.volumeChange24) || 0;
+        const volumeChangeClass = volumeChange24 > 0 ? 'change-positive' : volumeChange24 < 0 ? 'change-negative' : 'change-neutral';
+        const volumeChangeSign = volumeChange24 > 0 ? '+' : '';
         
         const networkName = getNetworkName(token.token?.networkId);
         const tokenAddress = token.token?.address;
@@ -585,12 +740,22 @@ function displayTokens() {
                 <td class="price-cell">${formatPrice(token.priceUSD)}</td>
                 <td class="${changeClass}">${changeSign}${(change24 * 100).toFixed(2)}%</td>
                 <td class="volume-cell">${formatNumber(token.volume24)}</td>
+                <td class="${volumeChangeClass}">${volumeChangeSign}${(volumeChange24 * 100).toFixed(2)}%</td>
                 <td class="mcap-cell">${formatNumber(token.marketCap)}</td>
                 <td class="liquidity-cell">${formatNumber(token.liquidity)}</td>
                 <td class="txn-cell">${formatNumber(token.txnCount24, 0)}</td>
+                <td class="unique-txn-cell">${formatNumber(token.uniqueTransactions24, 0)}</td>
                 <td class="buyers-cell">${formatNumber(token.uniqueBuys24, 0)}</td>
                 <td class="sellers-cell">${formatNumber(token.uniqueSells24, 0)}</td>
+                <td class="buy-count-cell">${formatNumber(token.buyCount24, 0)}</td>
+                <td class="sell-count-cell">${formatNumber(token.sellCount24, 0)}</td>
+                <td class="buy-volume-cell">${formatNumber(token.buyVolume24)}</td>
+                <td class="sell-volume-cell">${formatNumber(token.sellVolume24)}</td>
+                <td class="holders-cell">${formatNumber(token.holders, 0)}</td>
                 <td class="age-cell">${getTimeSinceCreation(token.createdAt)}</td>
+                <td class="wallet-age-cell">${formatNumber(token.walletAgeAvg, 1)}d</td>
+                <td class="old-wallet-1d-cell">${formatNumber(token.swapPct1dOldWallet, 1)}%</td>
+                <td class="old-wallet-7d-cell">${formatNumber(token.swapPct7dOldWallet, 1)}%</td>
                 <td class="link-cell">
                     ${hasValidLink ? 
                         `<button class="matcha-btn" onclick="event.stopPropagation(); openTokenLink('${networkName}', '${tokenAddress}')">🔗 View</button>` :
@@ -721,9 +886,9 @@ function formatPrice(price) {
     const p = parseFloat(price);
     if (isNaN(p)) return 'N/A';
     
-    if (p < 0.01) return ''  + p.toFixed(6);
-    if (p < 1) return ''  + p.toFixed(4);
-    return ''  + p.toFixed(2);
+    if (p < 0.01) return '$' + p.toFixed(6);
+    if (p < 1) return '$' + p.toFixed(4);
+    return '$' + p.toFixed(2);
 }
 
 function getTimeSinceCreation(timestamp) {
@@ -739,15 +904,43 @@ function getTimeSinceCreation(timestamp) {
     return `${hours}h`;
 }
 
+// Mock data function for fallback
+function generateMockTokens() {
+    const mockTokens = [];
+    const symbols = ['MOCK', 'TEST', 'DEMO', 'FAKE', 'SAMPLE'];
+    const names = ['Mock Token', 'Test Coin', 'Demo Token', 'Fake Coin', 'Sample Token'];
+    
+    for (let i = 0; i < 100; i++) {
+        mockTokens.push({
+            token: {
+                address: `0x${Math.random().toString(16).substr(2, 40)}`,
+                name: names[i % names.length] + ` ${i + 1}`,
+                symbol: symbols[i % symbols.length] + (i + 1),
+                networkId: [1, 56, 137][i % 3]
+            },
+            priceUSD: Math.random() * 100,
+            change24: (Math.random() - 0.5) * 0.5,
+            volume24: Math.random() * 1000000,
+            marketCap: Math.random() * 10000000,
+            liquidity: Math.random() * 1000000,
+            txnCount24: Math.floor(Math.random() * 1000),
+            uniqueBuys24: Math.floor(Math.random() * 500),
+            uniqueSells24: Math.floor(Math.random() * 500),
+            createdAt: Date.now() / 1000 - Math.random() * 86400 * 30,
+            isScam: Math.random() < 0.1
+        });
+    }
+    
+    return mockTokens;
+}
+
 // Global functions for HTML event handlers
 window.fetchTokens = fetchTokens;
 window.changePage = changePage;
 window.goToFirstPage = goToFirstPage;
 window.goToLastPage = goToLastPage;
 window.applyPreset = applyPreset;
-window.addRanking = addRanking;
-window.removeRanking = removeRanking;
-window.clearAllRankings = clearAllRankings;
+window.clearRanking = clearRanking;
 window.applyCustomRanking = applyCustomRanking;
 window.openTokenLink = openTokenLink;
 window.clearAllFilters = clearAllFilters;
